@@ -1,0 +1,5 @@
+mutagen==1.47.0
+click==8.1.7
+rich==13.7.1
+pygame==2.6.1
+PyObjC==10.3
