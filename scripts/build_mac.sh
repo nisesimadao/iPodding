@@ -5,8 +5,9 @@
 
 echo "Starting macOS build for iPodding..."
 
-# スクリプトの場所を基準にプロジェクトのルートへ移動
+# スクリプトの場所を基準にプロジェクトのルートへ移動し、絶対パスを取得
 cd "$(dirname "$0")/.."
+PROJECT_ROOT=$(pwd)
 
 # アイコンの生成
 python3 scripts/generate_icons.py
@@ -15,16 +16,14 @@ python3 scripts/generate_icons.py
 mkdir -p build/macOS
 
 # PyInstallerの実行
-# macOSでは --windowed を使うことで .app パッケージが生成されます
-# --onefile は macOS GUI アプリではトラブルが多いため、まずは標準的なビルドを試みます
-
+# フルパスを使用することで temp_build フォルダとの混同を防ぎます
 pyinstaller --windowed --noconsole \
-    --icon="assets/logo.png" \
-    --add-data "assets/logo.png:." \
+    --icon="$PROJECT_ROOT/assets/logo.png" \
+    --add-data "$PROJECT_ROOT/assets/logo.png:." \
     --name "iPodding" \
-    --distpath "build/macOS" \
-    --workpath "temp_build_mac" \
-    --specpath "temp_build_mac" \
+    --distpath "$PROJECT_ROOT/build/macOS" \
+    --workpath "$PROJECT_ROOT/temp_build_mac" \
+    --specpath "$PROJECT_ROOT/temp_build_mac" \
     --clean \
     src/main.py
 

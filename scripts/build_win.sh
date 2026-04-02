@@ -5,8 +5,9 @@
 
 echo "Starting Windows build for iPodding..."
 
-# スクリプトの場所を基準にプロジェクトのルートへ移動
+# スクリプトの場所を基準にプロジェクトのルートへ移動し、絶対パスを取得
 cd "$(dirname "$0")/.."
+PROJECT_ROOT=$(pwd)
 
 # アイコンの生成
 python scripts/generate_icons.py
@@ -15,19 +16,16 @@ python scripts/generate_icons.py
 mkdir -p build/Windows
 
 # PyInstallerの実行
-# --onefile: 1つの実行ファイルにまとめる
-# --noconsole: 実行時にコンソールを表示しない (GUIアプリ向け)
-# --icon: アプリケーションアイコンを指定
-# --add-data: 静的アセットを含める (logo.png)
-# --distpath: ビルド成果物の出力先
+# フルパスを使用することで temp_build フォルダとの混同を防ぎます
+# Windowsでは --add-data の区切りにセミコロン (;) を使用します
 
 pyinstaller --noconsole --onefile \
-    --icon="assets/logo.ico" \
-    --add-data "assets/logo.png;." \
+    --icon="$PROJECT_ROOT/assets/logo.ico" \
+    --add-data "$PROJECT_ROOT/assets/logo.png;." \
     --name "iPodding" \
-    --distpath "build/Windows" \
-    --workpath "temp_build" \
-    --specpath "temp_build" \
+    --distpath "$PROJECT_ROOT/build/Windows" \
+    --workpath "$PROJECT_ROOT/temp_build" \
+    --specpath "$PROJECT_ROOT/temp_build" \
     src/main.py
 
 echo "Build complete! Check build/Windows directory."
