@@ -174,7 +174,8 @@ class iPodExtractorGUI:
                                                 font=("Consolas", 9),
                                                 insertbackground="white",
                                                 relief="flat",
-                                                padding=10)
+                                                padx=10,
+                                                pady=10)
         self.log_text.pack(fill=tk.BOTH, expand=True)
         
         # 読み取り専用に
@@ -189,9 +190,22 @@ class iPodExtractorGUI:
         self.root.update_idletasks()
         
     def auto_detect(self):
-        """iPodを自動検出"""
+        """iPodを自動検出（非同期）"""
         self.log("Scanning for connected iPods...")
+        self.status_label.config(text="Scanning drives...")
+        
+        # 検出処理を別スレッドで実行
+        thread = threading.Thread(target=self._auto_detect_worker, daemon=True)
+        thread.start()
+        
+    def _auto_detect_worker(self):
+        """バックグラウンドでの検出処理"""
         path = self.manager.detect_ipod()
+        # 結果をUIスレッドに反映
+        self.root.after(0, lambda: self._auto_detect_finished(path))
+        
+    def _auto_detect_finished(self, path):
+        """検出完了後の処理（UIスレッド）"""
         if path:
             self.ipod_path_var.set(path)
             self.log(f"Detected iPod at: {path}")
@@ -271,6 +285,10 @@ class iPodExtractorGUI:
                 self.progress_var.set(pct)
                 self.stats_label.config(text=f"{current} / {total}")
             self.status_label.config(text=message)
+            
+            # ログにも重要な進捗（スキャン開始や完了など）を出力
+            if message and ("スキャン中" in message or "合計" in message or "完了" in message):
+                self.log(message)
         
         self.root.after(0, update)
         

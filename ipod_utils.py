@@ -20,9 +20,17 @@ class iPodManager:
                         possible_paths.append(os.path.join(volumes_path, item))
                         
             elif system == "Windows": # Windows
-                # AからZまでのドライブをチェック
-                drives = [f"{d}:\\" for d in string.ascii_uppercase if os.path.exists(f"{d}:\\")]
-                possible_paths = drives
+                # Python 3.12+ の場合は効率的なメソッドを使用
+                if hasattr(os, 'list_drives'):
+                    try:
+                        possible_paths = [d.path for d in os.list_drives()]
+                    except:
+                        import string
+                        possible_paths = [f"{d}:\\" for d in string.ascii_uppercase]
+                else:
+                    import string
+                    # A, B ドライブはフロッピー等の可能性が高く遅いためスキップし、C以降を確認
+                    possible_paths = [f"{d}:\\" for d in string.ascii_uppercase[2:]]
                 
             else: # Linux etc.
                 possible_paths = ["/media/iPod", "/mnt/iPod"]

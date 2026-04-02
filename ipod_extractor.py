@@ -53,8 +53,15 @@ class iPodExtractor:
         
     def extract_all_music(self):
         """すべての音楽を抽出"""
-        if not self.database.load_database():
-            self.log("iPodデータベースの読み込みに失敗しました")
+        # データベース読み込み中も進捗を表示し、中断を確認するように変更
+        if not self.database.load_database(
+            progress_callback=self.update_progress,
+            cancel_check=lambda: self.is_cancelled
+        ):
+            if self.is_cancelled:
+                self.log("読み込み中に中断されました")
+            else:
+                self.log("iPodデータベースの読み取りに失敗しました")
             return False
             
         tracks = self.database.get_music_tracks()

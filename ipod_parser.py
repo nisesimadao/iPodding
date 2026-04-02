@@ -26,9 +26,14 @@ class iPodDatabase:
         self.itunes_path = os.path.join(ipod_path, "iPod_Control", "iTunes")
         self.music_path = os.path.join(ipod_path, "iPod_Control", "Music")
         self.tracks = []
+        self.progress_callback = None
+        self.cancel_check = None
         
-    def load_database(self):
+    def load_database(self, progress_callback=None, cancel_check=None):
         """iPodの音楽ファイルを読み込む"""
+        self.progress_callback = progress_callback
+        self.cancel_check = cancel_check
+        
         if not os.path.exists(self.music_path):
             raise FileNotFoundError(f"音楽フォルダが見つかりません: {self.music_path}")
         
@@ -112,27 +117,42 @@ class iPodDatabase:
             return
         
         # すべてのフォルダをスキャン
-        folders = os.listdir(self.music_path)
-        print(f"スキャン中: {len(folders)} フォルダ...")
+        folders = [f for f in os.listdir(self.music_path) if os.path.isdir(os.path.join(self.music_path, f))]
+        msg = f"スキャン中: {len(folders)} フォルダ..."
+        if self.progress_callback:
+            self.progress_callback(0, len(folders), msg)
+        else:
+            print(msg)
         
         total_files = 0
         for i, folder in enumerate(folders):
+            # 中断チェック
+            if self.cancel_check and self.cancel_check():
+                return
+                
             folder_path = os.path.join(self.music_path, folder)
-            if os.path.isdir(folder_path):
-                files = os.listdir(folder_path)
-                for file in files:
-                    if file.endswith(('.mp3', '.m4a', '.wav', '.aac')) and not file.startswith('._'):
-                        file_path = os.path.join(folder_path, file)
-                        track_data = self.extract_metadata(file_path)
-                        if track_data:
-                            self.tracks.append(iPodTrack(track_data))
-                            total_files += 1
+            files = os.listdir(folder_path)
+            for file in files:
+                if file.endswith(('.mp3', '.m4a', '.wav', '.aac')) and not file.startswith('._'):
+                    file_path = os.path.join(folder_path, file)
+                    track_data = self.extract_metadata(file_path)
+                    if track_data:
+                        self.tracks.append(iPodTrack(track_data))
+                        total_files += 1
             
             # 進捗表示
-            progress = ((i + 1) / len(folders)) * 100
-            print(f"\r進捗: {progress:.1f}% - 処理中: {i+1}/{len(folders)} フォルダ完了", end="", flush=True)
+            progress_pct = ((i + 1) / len(folders)) * 100
+            msg = f"進捗: {progress_pct:.1f}% - 処理中: {i+1}/{len(folders)} フォルダ完了"
+            if self.progress_callback:
+                self.progress_callback(i + 1, len(folders), msg)
+            else:
+                print(f"\r{msg}", end="", flush=True)
         
-        print(f"\n合計 {total_files} 件の音楽ファイルを検出しました")
+        final_msg = f"合計 {total_files} 件の音楽ファイルを検出しました"
+        if self.progress_callback:
+            self.progress_callback(len(folders), len(folders), final_msg)
+        else:
+            print(f"\n{final_msg}")
     
     def get_tracks(self):
         """すべてのトラックを取得"""

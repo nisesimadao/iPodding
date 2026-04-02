@@ -1,5 +1,8 @@
 mutagen==1.47.0
 click==8.1.7
 rich==13.7.1
-pygame==2.6.1
-PyObjC==10.3
+mutagen==1.47.0
+click==8.1.7
+rich==13.7.1
+# pygame - if needed for audio playing in future
+# PyObjC is macOS only, removed for Windows support
