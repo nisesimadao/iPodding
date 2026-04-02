@@ -5,6 +5,9 @@
 
 echo "Starting macOS build for iPodding..."
 
+# スクリプトの場所を基準にプロジェクトのルートへ移動
+cd "$(dirname "$0")/.."
+
 # アイコンの生成
 python3 scripts/generate_icons.py
 

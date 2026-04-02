@@ -5,6 +5,9 @@
 
 echo "Starting Windows build for iPodding..."
 
+# スクリプトの場所を基準にプロジェクトのルートへ移動
+cd "$(dirname "$0")/.."
+
 # アイコンの生成
 python scripts/generate_icons.py
 
