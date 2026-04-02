@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # macOSビルドスクリプト
-# 使用法: chmod +x build_mac.sh && ./build_mac.sh
+# 使用法: chmod +x scripts/build_mac.sh && ./scripts/build_mac.sh
 
 echo "Starting macOS build for iPodding..."
 
@@ -12,17 +12,17 @@ python3 scripts/generate_icons.py
 mkdir -p build/macOS
 
 # PyInstallerの実行
-# --windowed: macOS向けのアプリパッケージ (.app) を生成
-# --icon: アイコンファイルを指定 (macOSは本来 .icns が望ましいですが、.png も試みます)
-# --add-data: アセットを含める (macOSは ":" で区切る)
+# macOSでは --windowed を使うことで .app パッケージが生成されます
+# --onefile は macOS GUI アプリではトラブルが多いため、まずは標準的なビルドを試みます
 
-pyinstaller --windowed --noconsole --onefile \
+pyinstaller --windowed --noconsole \
     --icon="assets/logo.png" \
     --add-data "assets/logo.png:." \
     --name "iPodding" \
     --distpath "build/macOS" \
     --workpath "temp_build_mac" \
     --specpath "temp_build_mac" \
+    --clean \
     src/main.py
 
-echo "Build complete! Check build/macOS directory."
+echo "Build process finished. Please check build/macOS/iPodding.app"
