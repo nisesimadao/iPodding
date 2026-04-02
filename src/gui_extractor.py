@@ -9,7 +9,9 @@ import threading
 import os
 import platform
 import time
+import sys
 from pathlib import Path
+from PIL import Image, ImageTk # 新規: 画像処理用
 from ipod_extractor import iPodExtractor
 from ipod_utils import iPodManager, open_folder
 
@@ -100,6 +102,25 @@ class iPodExtractorGUI:
         header_frame = ttk.Frame(container, style="Main.TFrame")
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
+        # ロゴの読み込みと表示
+        if hasattr(sys, '_MEIPASS'):
+            # PyInstallerでパッケージングされた場合
+            logo_path = os.path.join(sys._MEIPASS, "logo.png")
+        else:
+            # 通常実行（src/から見て../assets/にある場合）
+            logo_path = os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png")
+
+        if os.path.exists(logo_path):
+            try:
+                img = Image.open(logo_path)
+                img = img.resize((32, 32), Image.Resampling.LANCZOS)
+                self.logo_img = ImageTk.PhotoImage(img) # 参照を保持する必要がある
+                self.root.iconphoto(True, self.logo_img) # ウィンドウアイコンを設定
+                logo_label = ttk.Label(header_frame, image=self.logo_img, background=self.colors["bg"])
+                logo_label.pack(side=tk.LEFT, padx=(0, 10))
+            except Exception as e:
+                print(f"Error loading logo: {e}")
+
         ttk.Label(header_frame, text="iPodding", style="Header.TLabel").pack(side=tk.LEFT)
         ttk.Label(header_frame, text=" | iPod Music Extractor", style="Normal.TLabel", background=self.colors["bg"]).pack(side=tk.LEFT, padx=5, pady=(8, 0))
         
