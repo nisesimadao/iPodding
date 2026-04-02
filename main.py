@@ -7,54 +7,23 @@ import os
 import sys
 import click
 from rich.console import Console
-from rich.table import Table
-from rich.prompt import Prompt, Confirm
 from pathlib import Path
+import platform
+import shutil
 from ipod_extractor import iPodExtractor
+from ipod_utils import iPodManager
 
 console = Console()
 
-class iPodManager:
-    def __init__(self):
-        self.ipod_path = None
-    
-    def detect_ipod(self):
-        """接続されているiPodを検出"""
-        try:
-            # macOSでのiPodマウントポイントを探索
-            possible_paths = [
-                "/Volumes/iPod",
-                "/Volumes/iPod touch",
-                "/Volumes/iPhone",
-                "/media/iPod",
-                "/mnt/iPod"
-            ]
-            
-            for path in possible_paths:
-                if os.path.exists(path):
-                    itunes_path = os.path.join(path, "iPod_Control", "iTunes")
-                    if os.path.exists(itunes_path):
-                        return path
-            
-            # /Volumes以下でiPod関連の名前を持つデバイスを探索
-            volumes_path = "/Volumes"
-            if os.path.exists(volumes_path):
-                for item in os.listdir(volumes_path):
-                    item_path = os.path.join(volumes_path, item)
-                    if os.path.isdir(item_path):
-                        itunes_path = os.path.join(item_path, "iPod_Control", "iTunes")
-                        if os.path.exists(itunes_path):
-                            return item_path
-            
-            return None
-        except Exception as e:
-            console.print(f"[red]iPod検出エラー: {e}[/red]")
-            return None
+    # iPodManagerはipod_utilsからインポートされるため、このクラス定義は不要です
 
-@click.group()
-def cli():
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
     """iPodding - iPod音楽管理ツール"""
-    pass
+    if ctx.invoked_subcommand is None:
+        # サブコマンドが指定されていない場合はGUIを起動
+        ctx.invoke(gui)
 
 @cli.command()
 def detect():

@@ -20,6 +20,7 @@ class iPodExtractor:
         self.log_callback = log_callback
         self.seen_tracks = set()  # 重複検出用
         self.failed_tracks = []   # 失敗したトラック記録
+        self.is_cancelled = False # 中断フラグ
         
     def log(self, message):
         """ログを出力"""
@@ -69,6 +70,11 @@ class iPodExtractor:
                     skipped_duplicates += 1
                     self.log(f"  重複をスキップ: {track.artist} - {track.title}")
                     continue
+                
+                # 中断チェック
+                if self.is_cancelled:
+                    self.log("抽出処理が中断されました")
+                    return False
                 
                 # トラックをコピー（リトライ機能付き）
                 success = self.copy_track_with_retry(track, i)
@@ -228,3 +234,8 @@ class iPodExtractor:
             'total_size_mb': total_size / (1024 * 1024),
             'formats': formats
         }
+    
+    def cancel(self):
+        """抽出を中断"""
+        self.is_cancelled = True
+        self.log("中断リクエストを受信しました...")
