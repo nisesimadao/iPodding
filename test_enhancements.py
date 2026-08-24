@@ -4,6 +4,13 @@
 """
 
 import os
+import sys
+from pathlib import Path
+
+# Allow running this file directly from the repository root.
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'src'))
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
 import tempfile
 from ipod_extractor import iPodExtractor
 from ipod_parser import iPodTrack

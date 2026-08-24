@@ -1,5 +1,10 @@
-/__pycache__
-/venv
-/temp_build
-/temp_build_mac
-src/__pycache__
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+build/
+temp_build/
+temp_build_mac/
+ipodding_summary.md
+.DS_Store

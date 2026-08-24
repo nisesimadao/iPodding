@@ -1,71 +1,87 @@
-# <img src="assets/logo.png" width="40" vertical-align="middle" /> iPodding
+# <img src="assets/logo.png" width="42" alt="iPodding logo" /> iPodding
 
-iPodの音楽をPCに抽出し、VLC/iTunesプレイリストを作成するツール。
-WindowsとmacOSの両方に対応し、洗練されたGUIで直感的に操作できます。
+[![CI](https://github.com/nisesimadao/iPodding/actions/workflows/ci.yml/badge.svg)](https://github.com/nisesimadao/iPodding/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/nisesimadao/iPodding)](https://github.com/nisesimadao/iPodding/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## プロジェクト構成
+**iPodの音楽をPCへ取り出し、VLC / iTunes向けプレイリストまでまとめて作るデスクトップツール。** Windows と macOS に対応し、GUIとCLIの両方から使えます。
 
-```
-iPodding/
-├── src/
-│   ├── main.py              # メインエントリ（デフォルトでGUIを起動）
-│   ├── gui_extractor.py      # プレミアムGUIアプリケーション
-│   ├── ipod_extractor.py     # 音楽抽出コア機能（中断対応）
-│   ├── ipod_parser.py       # iPodデータベースパーサー
-│   └── ipod_utils.py        # OS固有・共有ユーティリティ [NEW]
-├── assets/
-│   ├── logo.png             # アプリケーションロゴ
-│   └── logo.ico             # Windows用アイコン
-├── scripts/
-│   ├── build_win.sh         # Windowsビルドスクリプト
-│   ├── build_mac.sh         # macOSビルドスクリプト
-│   └── generate_icons.py    # アイコン生成スクリプト
-├── requirements.txt      # 依存関係
-└── README.md           # このファイル
-```
+## ダウンロード
 
-## 特徴
+ビルド済みアプリは [Releases](https://github.com/nisesimadao/iPodding/releases/latest) から取得できます。
 
-- **マルチプラットフォーム**: Windows (ドライブレター検出) と macOS に完全対応。
-- **プレミアムGUI**: モダンで直感的なインターフェース。
-- **自動検出**: 接続されたiPod（ディスクモード）をワンクリックで検出。
-- **安全な抽出**: Windowsの制限文字を考慮したファイル名サニタイズ。
-- **中断機能**: 大量抽出中でも途中で安全に停止可能。
-- **プレイリスト生成**: VLC (.m3u) および iTunes (.txt) 用プレイリストを自動作成。
+- **Windows**: `iPodding-Windows.exe`
+- **macOS**: `iPodding-macOS.zip`
 
-## インストール
+## 主な機能
+
+- 接続された iPod（ディスクモード）の自動検出
+- 曲・アーティスト・アルバム情報を使った整理付き抽出
+- Windowsで使えない文字を考慮した安全なファイル名処理
+- 大量抽出中の中断と失敗トラックの記録
+- VLC (`.m3u`) / iTunes (`.txt`) プレイリスト生成
+- Windows / macOS 対応
+- GUI / CLI 両対応
+
+## ソースから実行
+
+Python 3.10+ を推奨します。
 
 ```bash
-# 依存関係をインストール
-pip install -r requirements.txt
+git clone https://github.com/nisesimadao/iPodding.git
+cd iPodding
+python -m pip install -r requirements.txt
+python src/main.py
 ```
 
-## 使い方
-
-### GUI（推奨）
-
-1. `python main.py` を実行（引数なしで実行するとGUIが立ち上がります）
-2. 「Auto Detect」ボタンをクリックしてiPodを検出
-3. 出力先を確認し、「Start Extraction」をクリック
-4. 完了後、「Open Folder」で抽出された曲を確認
-
-### CUIモード
-
-CLIでの操作も引き続き可能です：
+### CLI
 
 ```bash
 # iPodを検出
-python main.py detect
+python src/main.py detect
 
 # 音楽を抽出
-python main.py extract --ipod-path "E:\" --output-dir "C:\Users\Name\Music\iPod"
+python src/main.py extract --ipod-path "E:\\" --output-dir "C:\\Users\\Name\\Music\\iPod"
 ```
 
-## 注意事項
+## iPod側の準備
 
-- iPodは「ディスクモードとして使用」が有効になっている必要があります。
-- 大量の音楽ファイルの場合、抽出に時間がかかることがあります（進捗バーで確認可能）。
+iPodding は、PCからストレージとして見える **ディスクモードの iPod** を対象にしています。iPodがFinder / エクスプローラーから参照できる状態にしてから起動してください。
 
-## ライセンス
+## プロジェクト構成
 
-MIT License
+```text
+src/
+  main.py           CLI / GUI エントリポイント
+  gui_extractor.py  GUI
+  ipod_extractor.py 抽出・コピー・プレイリスト生成
+  ipod_parser.py    iPodデータベース解析
+  ipod_utils.py     OS別の検出・ユーティリティ
+scripts/            Windows / macOS ビルドスクリプト
+assets/             アプリアイコン
+```
+
+## テスト
+
+```bash
+python test_enhancements.py
+python -m compileall -q src
+```
+
+GitHub Actions でも Windows / macOS 互換の基本ロジックとPython構文を継続チェックします。
+
+## ビルド
+
+PyInstaller を利用します。ビルド成果物はGit管理せず、配布物は GitHub Releases に置く方針です。
+
+```bash
+# macOS / Linux shell
+bash scripts/build_mac.sh
+
+# Windowsでは Git Bash 等から
+bash scripts/build_win.sh
+```
+
+## License
+
+[MIT](LICENSE)
